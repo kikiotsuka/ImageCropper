@@ -122,9 +122,9 @@ else:
     print('File not found')
     cleanup()
     stop()
-if not os.path.isdir('../wallpaperbackup'):
-    os.makedirs('../wallpaperbackup')
-Image.open(imgname).save('../wallpaperbackup/1.jpg')
+if not os.path.isdir('wallpaperbackup'):
+    os.makedirs('wallpaperbackup')
+Image.open(imgname).save('wallpaperbackup/1.jpg')
 im = Image.open('tmpcopy.jpg')
 # resize image for crop mode
 if resizemode:
@@ -334,6 +334,7 @@ del im
 print('Operation has been completed. The altered image has been saved as "' +
       str(imgname) + '"')
 print('A backup of the original image is located in')
-print(str(f[:f[:len(f) - 1].rfind('/') + 1]) + 'wallpaperbackup/')
+#print(str(f[:f[:len(f) - 1].rfind('/') + 1]) + 'wallpaperbackup/')
+print(str(f) + 'wallpaperbackup/')
 cleanup()
 stop()
