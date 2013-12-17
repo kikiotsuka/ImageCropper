@@ -1,7 +1,7 @@
 #!/usr/bin/python2
 # -*- coding: utf-8 -*-
 
-from __future__ import print_function
+from __future__ import print_function, unicode_literals
 from time import sleep
 import pygame
 import sys
@@ -62,6 +62,8 @@ Using the program
 		needs to read error messages on the console
 """
 
+if sys.version_info[0] == 3:
+    raw_input = input
 
 def cleanup():
     # deletes temporary images
