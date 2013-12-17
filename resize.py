@@ -22,9 +22,9 @@ Things you must install to make this work
 	The above links are for windows users
 
 Things you must change for it to work
-	- line 80 -> "f = 'C:/Users/Mitsuru/Desktop/Wallpapers/'"
-		must be changed to where you store your wallpapers
-	- line 77, 78 -> "userscreenwidth = 1920" and "userscreenheight = 1080"
+	- line 91 -> "f = 'C:/Users/Mitsuru/Desktop/Wallpapers/'"
+        must be changed to where you store your wallpapers
+    - line 88, 89 -> "userscreenwidth = 1920" and "userscreenheight = 1080"
 		must be changed to your screen's resolutions respectively
 		
 Using the program
@@ -72,13 +72,14 @@ def cleanup():
     except FileNotFoundError:
         pass
 
-
+            
 def stop():
 # exits program, called when user hits q or closes window
     print('Exiting program')
     pygame.quit()
     sleep(3)
     sys.exit()
+    
 
 #===variable constants===
 # scale size for cropping
