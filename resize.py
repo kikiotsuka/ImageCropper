@@ -1,7 +1,7 @@
 #!/usr/bin/python2
 # -*- coding: utf-8 -*-
 
-from __future__ import print_function
+from __future__ import print_function, unicode_literals
 from time import sleep
 import pygame
 import sys
@@ -22,9 +22,9 @@ Things you must install to make this work
 	The above links are for windows users
 
 Things you must change for it to work
-	- line 91 -> "f = 'C:/Users/Mitsuru/Desktop/Wallpapers/'"
+	- around line 91 -> "f = 'C:/Users/Mitsuru/Desktop/Wallpapers/'"
         must be changed to where you store your wallpapers
-    - line 88, 89 -> "userscreenwidth = 1920" and "userscreenheight = 1080"
+    - around line 88, 89 -> "userscreenwidth = 1920" and "userscreenheight = 1080"
 		must be changed to your screen's resolutions respectively
 		
 Using the program
@@ -62,6 +62,8 @@ Using the program
 		needs to read error messages on the console
 """
 
+if sys.version_info[0] == 3:
+    raw_input = input
 
 def cleanup():
     # deletes temporary images
@@ -92,11 +94,7 @@ f = 'C:/Users/Mitsuru/Desktop/Wallpapers/'
 
 # ask image name, resize mode or minimalistic mode
 imgname = raw_input('File name:')
-resizemode = False
-if raw_input('Resize mode (y/n):') == 'y':
-    resizemode = True
-else:
-    resizemode = False
+resizemode = raw_input('Resize mode (y/n):') == 'y'
 os.chdir(f)
 # os.chdir('C:/Users/Mitsuru/Desktop/testpapers/')
 pygame.init()
@@ -158,9 +156,7 @@ if resizemode:
     resizedimg = pygame.image.load('scaleoutput.jpg')
     if vertical:
         rectangle = Rect(
-            (0,
-             int((windowSurfaceObj.get_size()[
-                 1] - userscreenheight * scalesize) / 2)),
+            (0, int((windowSurfaceObj.get_size()[1] - userscreenheight * scalesize) / 2)),
             (int(userscreenwidth * scalesize), int(userscreenheight * scalesize)))
     else:
         rectangle = Rect(
@@ -201,17 +197,13 @@ while isworking:
             if vertical:
                 pygame.draw.rect(windowSurfaceObj, currentcolor,
                                  (0, 0, rectangle.width, rectangle.top), 0)
-                pygame.draw.rect(
-                    windowSurfaceObj, currentcolor, (
-                        rectangle.left, rectangle.bottom,
-                        rectangle.width, windowSurfaceObj.get_size()[1] - rectangle.top), 0)
+                pygame.draw.rect(windowSurfaceObj, currentcolor,
+                    (rectangle.left, rectangle.bottom, rectangle.width, windowSurfaceObj.get_size()[1] - rectangle.top), 0)
             else:
                 pygame.draw.rect(windowSurfaceObj, currentcolor,
                                  (0, 0, rectangle.left, rectangle.height))
-                pygame.draw.rect(
-                    windowSurfaceObj, currentcolor, (
-                        rectangle.right, rectangle.top,
-                        windowSurfaceObj.get_size()[0] - rectangle.right, rectangle.height), 0)
+                pygame.draw.rect(windowSurfaceObj, currentcolor,
+                    (rectangle.right, rectangle.top, windowSurfaceObj.get_size()[0] - rectangle.right, rectangle.height), 0)
     else:  # not resize mode
         windowSurfaceObj.blit(moveimg, (xloc, yloc))
     if left and not ask:
@@ -260,8 +252,8 @@ while isworking:
         msgSurfaceObj = fontObj.render(msg, False, pygame.Color(255, 0, 0))
         msgRectobj = msgSurfaceObj.get_rect()
         msgRectobj.topleft = (5, 5)
-        pygame.draw.rect(windowSurfaceObj, currentcolor, (msgRectobj.left - 2,
-                         msgRectobj.top - 2, msgRectobj.width + 2, msgRectobj.height + 2), 0)
+        pygame.draw.rect(windowSurfaceObj, currentcolor,
+            (msgRectobj.left - 2, msgRectobj.top - 2, msgRectobj.width + 2, msgRectobj.height + 2), 0)
         windowSurfaceObj.blit(msgSurfaceObj, msgRectobj)
     for event in pygame.event.get():
         if event.type == QUIT:
@@ -271,13 +263,13 @@ while isworking:
             cleanup()
             stop()
         elif event.type == KEYDOWN:
-            if event.key == K_LEFT or event.key == K_a:
+            if event.key in (K_LEFT, K_a):
                 left = True
-            elif event.key == K_RIGHT or event.key == K_d:
+            elif event.key in (K_RIGHT, K_d):
                 right = True
-            elif event.key == K_DOWN or event.key == K_s:
+            elif event.key in (K_DOWN, K_s):
                 down = True
-            elif event.key == K_UP or event.key == K_w:
+            elif event.key in (K_UP, K_w):
                 up = True
             elif event.key == K_q:
                 del im
@@ -300,13 +292,13 @@ while isworking:
             elif event.key == K_ESCAPE:
                 ask = False
         elif event.type == KEYUP:
-            if event.key == K_LEFT or event.key == K_a:
+            if event.key in (K_LEFT, K_a):
                 left = False
-            elif event.key == K_RIGHT or event.key == K_d:
+            elif event.key in (K_RIGHT, K_d):
                 right = False
-            elif event.key == K_UP or event.key == K_w:
+            elif event.key in (K_UP, K_w):
                 up = False
-            elif event.key == K_DOWN or event.key == K_s:
+            elif event.key in (K_DOWN, K_s):
                 down = False
             if not left and not right and not up and not down:
                 time = 0
