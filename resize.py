@@ -26,7 +26,7 @@ Things you must change for it to work
         must be changed to where you store your wallpapers
     - around line 88, 89 -> "userscreenwidth = 1920" and "userscreenheight = 1080"
 		must be changed to your screen's resolutions respectively
-		
+
 Using the program
 	This program has 2 modes
 	Resize-and-crop mode:
@@ -38,13 +38,14 @@ Using the program
 		and you want it as a wallpaper. The general idea is that the small
 		image will be placed in the right bottom corner (by default) and create
 		a simple minimalistic wallpaper
-		
+
 	Controls:
 		WASD or arrowkeys to move the crop box or image around
 		ENTER to confirm region/image location
 		ESCAPE to cancel selection
 		Q to quit the program without any changes
-		
+        SPACE to invert the color ofthe selection box
+
 	Inputs:
 		First you will be asked to give the name of the image to crop
 		As long as the wallpaper extensions are {'.jpg', '.jpeg', '.png'}
@@ -52,10 +53,10 @@ Using the program
 		files with the same name but different extension, you must include the
 		extension to select the correct image, otherwise it will attempt to find
 		the image with the extensions listed above in that order
-		
+
 		Next, you will be asked to use resize mode
 			Type in 'y' for resize mode, and anything else for minimalistic mode
-			
+
 	Note:
 		After finishing cropping/exiting the program, there will be a 3 second pause
 		Please do not confuse this with a bug or lag, this is a feature if the user
@@ -74,14 +75,14 @@ def cleanup():
     except FileNotFoundError:
         pass
 
-            
+
 def stop():
 # exits program, called when user hits q or closes window
     print('Exiting program')
     pygame.quit()
     sleep(3)
     sys.exit()
-    
+
 
 #===variable constants===
 # scale size for cropping
@@ -178,7 +179,7 @@ down = False
 left = False
 right = False
 ask = False  # check user confirmation
-fontObj = pygame.font.Font('freesansbold.ttf', 14)
+fontObj = pygame.font.Font('arial.ttf', 14)
 msg = 'Press ENTER again to confirm, ESCAPE to cancel'
 time = 0  # for picture acceleration
 movedist = 1
