@@ -68,12 +68,9 @@ if sys.version_info[0] == 3:
 
 def cleanup():
     # deletes temporary images
-    try:
-        os.remove('tmpcopy.jpg')
-        os.remove('tmpresize.jpg.jpg')
-        os.remove('scaleoutput.jpg')
-    except FileNotFoundError:
-        pass
+    if os.path.isfile('tmpcopy.jpg'): os.remove('tmpcopy.jpg')
+    if os.path.isfile('tmpresize.jpg'): os.remove('tmpresize.jpg')
+    if os.path.isfile('scaleoutput.jpg'): os.remove('scaleoutput.jpg')
 
 
 def stop():
@@ -137,7 +134,7 @@ if resizemode:
         im2 = im.resize(
             (int(userscreenheight * 1.0 / im.size[1] * im.size[0]), userscreenheight), Image.ANTIALIAS)
         vertical = False
-    im2.save('tmpresize.jpg.jpg')
+    im2.save('tmpresize.jpg')
     print(
         'Computing scaled image size. If image is large, operation may take a while')
     while im2.size[0] * scalesize >= userscreenwidth - 30:  # width too big
@@ -179,7 +176,7 @@ down = False
 left = False
 right = False
 ask = False  # check user confirmation
-fontObj = pygame.font.Font('arial.ttf', 14)
+fontObj = pygame.font.Font('freesansbold.ttf', 14)
 msg = 'Press ENTER again to confirm, ESCAPE to cancel'
 time = 0  # for picture acceleration
 movedist = 1
