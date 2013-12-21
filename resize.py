@@ -6,6 +6,7 @@ from time import sleep
 import pygame
 import sys
 import os
+import getpass
 from pygame.locals import *
 from PIL import Image
 
@@ -20,13 +21,8 @@ Things you must install to make this work
 	- Pygame for Python 2.7
 		http://www.lfd.uci.edu/~gohlke/pythonlibs/#pygame
 	The above links are for windows users
-
-Things you must change for it to work
-	- around line 91 -> "f = 'C:/Users/Mitsuru/Desktop/Wallpapers/'"
-        must be changed to where you store your wallpapers
-    - around line 88, 89 -> "userscreenwidth = 1920" and "userscreenheight = 1080"
-		must be changed to your screen's resolutions respectively
-
+"""
+tutorialtext = """
 Using the program
 	This program has 2 modes
 	Resize-and-crop mode:
@@ -58,7 +54,7 @@ Using the program
 			Type in 'y' for resize mode, and anything else for minimalistic mode
 
 	Note:
-		After finishing cropping/exiting the program, there will be a 3 second pause
+		After finishing cropping/exiting the program, there will be a 4 second pause
 		Please do not confuse this with a bug or lag, this is a feature if the user
 		needs to read error messages on the console
 """
@@ -77,23 +73,74 @@ def stop():
 # exits program, called when user hits q or closes window
     print('Exiting program')
     pygame.quit()
-    sleep(3)
+    sleep(4)
     sys.exit()
 
+
+def getuserinfo():
+    global searchloc, userscreenwidth, userscreenheight, f
+    confirm = True
+    while confirm:
+        userscreenwidth = int(raw_input('What is your screen width in pixels: '))
+        userscreenheight = int(raw_input('What is your screen height in pixels: '))
+        print('Where are your wallpapers located?')
+        print('i.e. ' + str(searchloc) + 'Desktop/Wallpapers')
+        print('NOTE: Use FORWARD SLASHES instead of backslashes')
+        f = raw_input('Location: ')
+        print('\n\n PLEASE CONFIRM THIS INFORMATION')
+        print('Screen width: ' + str(userscreenwidth) + ' pixels')
+        print('Screen height: ' + str(userscreenheight) + ' pixels')
+        print('Wallpaper location: ' + str(f))
+        if raw_input('"yes" for confirm, "no" to deny and reinput info: ') == 'yes':
+            confirm = False
+        else:
+            print('\n\n')
+    tmp = open('imageresizeruserinfo.txt', 'w')
+    tmp.write(str(userscreenwidth) + '\n')
+    tmp.write(str(userscreenheight) + '\n')
+    tmp.write(str(f) + '\n')
+    tmp.write(str(tutorialtext) + '\n')
+    tmp.close()
 
 #===variable constants===
 # scale size for cropping
 scalesize = .75
+searchloc = 'C:/Users/' + str(getpass.getuser()) + '/'
+if os.path.isdir(searchloc):
+    os.chdir(searchloc)
+    if os.path.isfile('imageresizeruserinfo.txt'):
+        try:
+            tmp = open('imageresizeruserinfo.txt', 'r')
+            userscreenwidth = int(tmp.readline())
+            userscreenheight = int(tmp.readline())
+            f = tmp.readline()
+            tmp.close()
+        except:
+            getuserinfo()
+    else:
+        getuserinfo()
+else:
+    print('Fatal error: Cannot find path')
+    print(searchloc)
+    print('Please contact Mitsuru for further assistance')
+    cleanup()
+    stop()
+"""
 # user screen's resoltuion
 userscreenwidth = 1920
 userscreenheight = 1080
 # path to user wallpapers/images
 f = 'C:/Users/Mitsuru/Desktop/Wallpapers/'
+"""
 
 # ask image name, resize mode or minimalistic mode
+if os.path.isdir(f):
+    os.chdir(f)
+else:
+    getuserinfo()
+    os.chdir(f)
 imgname = raw_input('File name:')
-resizemode = raw_input('Resize mode (y/n):') == 'y'
-os.chdir(f)
+resizemode = raw_input('Resize mode (y/n): ') == 'y'
 # os.chdir('C:/Users/Mitsuru/Desktop/testpapers/')
 pygame.init()
 fpsClock = pygame.time.Clock()
@@ -115,7 +162,8 @@ elif os.path.isfile(str(imgname) + '.png'):
     imgname += '.png'
     Image.open(imgname).save('tmpcopy.jpg')
 else:
-    print('File not found')
+    print('File not found in')
+    print(str(f))
     cleanup()
     stop()
 if not os.path.isdir('wallpaperbackup'):
