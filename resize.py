@@ -113,7 +113,7 @@ if os.path.isdir(searchloc):
             tmp = open('imageresizeruserinfo.txt', 'r')
             userscreenwidth = int(tmp.readline())
             userscreenheight = int(tmp.readline())
-            f = tmp.readline()
+            f = tmp.readline().rstrip('\n')
             tmp.close()
         except:
             getuserinfo()
@@ -139,6 +139,8 @@ if os.path.isdir(f):
 else:
     getuserinfo()
     os.chdir(f)
+print('For instructions on using this program, go to')
+print('C:\\Users\\' + str(getpass.getuser()) + '\\imageresizeruserinfo.txt\\')
 imgname = raw_input('File name:')
 resizemode = raw_input('Resize mode (y/n): ') == 'y'
 # os.chdir('C:/Users/Mitsuru/Desktop/testpapers/')
