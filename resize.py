@@ -43,6 +43,20 @@ Using the program
         SPACE to invert the color ofthe selection box
 
 	Inputs:
+        If you don't have the location of your wallpapers or your screen dimensions
+        configured, you will be asked to input your screen width and height
+        in pixels. To figure this out, go to your desktop, right click, and hit 
+        screen resolution.
+
+        The program will also ask where your wallpapers are. Open the folder containing
+        your wallpapers, and click on the rectangle next to the forward and back button
+        and you will see the path to your wallpaper folder. Type that into the console
+        (you cannot copy paste). Then, confirm your information by typing in 'yes'. If you
+        type in your information incorrectly and confirm, do not worry, the program will
+        handle it safely and ask you for your information again, but if you do it a second
+        time it will exit saying it cannot find the folder, and ask for your information upon
+        startup next time.
+
 		First you will be asked to give the name of the image to crop
 		As long as the wallpaper extensions are {'.jpg', '.jpeg', '.png'}
 		you do not need to include the extension. However, if there are multiple
