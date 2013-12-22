@@ -1,15 +1,15 @@
 #!/usr/bin/python2
 # -*- coding: utf-8 -*-
 
-from __future__ import print_function, unicode_literals
+from __future__ import print_function
 from time import sleep
 import ctypes
 import pygame
 import sys
 import os
 import getpass
-import Tkinter
-import tkFileDialog
+from Tkinter import Tk
+from tkFileDialog import askdirectory
 from pygame.locals import *
 from PIL import Image
 
@@ -65,9 +65,6 @@ Using the program
 		needs to read error messages on the console
 """
 
-if sys.version_info[0] == 3:
-    raw_input = input
-
 def cleanup():
     # deletes temporary images
     if os.path.isfile('tmpcopy.jpg'): os.remove('tmpcopy.jpg')
@@ -86,11 +83,11 @@ def stop():
 def getuserinfo():
     global searchloc, f
     confirm = True
-    root = Tkinter.Tk()
+    root = Tk()
     root.withdraw()
     dir_opt = options = {}
     options['title'] = 'Select the folder containing your wallpapers'
-    f = tkFileDialog.askdirectory(**dir_opt)
+    f = askdirectory(**dir_opt)
     tmp = open('imageresizeruserinfo.txt', 'w')
     tmp.write(str(f) + '\n')
     tmp.write(str(tutorialtext) + '\n')
@@ -130,7 +127,8 @@ f = 'C:/Users/Mitsuru/Desktop/Wallpapers/'
 if os.path.isdir(f):
     os.chdir(f)
 else:
-    getuserinfo()
+    while not os.path.isdir(f):
+        getuserinfo()
     os.chdir(f)
 print('For instructions on using this program, go to')
 print('C:\\Users\\' + str(getpass.getuser()) + '\\imageresizeruserinfo.txt\\')
