@@ -3,10 +3,13 @@
 
 from __future__ import print_function, unicode_literals
 from time import sleep
+import ctypes
 import pygame
 import sys
 import os
 import getpass
+import Tkinter
+import tkFileDialog
 from pygame.locals import *
 from PIL import Image
 
@@ -43,19 +46,8 @@ Using the program
         SPACE to invert the color ofthe selection box
 
 	Inputs:
-        If you don't have the location of your wallpapers or your screen dimensions
-        configured, you will be asked to input your screen width and height
-        in pixels. To figure this out, go to your desktop, right click, and hit 
-        screen resolution.
-
-        The program will also ask where your wallpapers are. Open the folder containing
-        your wallpapers, and click on the rectangle next to the forward and back button
-        and you will see the path to your wallpaper folder. Type that into the console
-        (you cannot copy paste). Then, confirm your information by typing in 'yes'. If you
-        type in your information incorrectly and confirm, do not worry, the program will
-        handle it safely and ask you for your information again, but if you do it a second
-        time it will exit saying it cannot find the folder, and ask for your information upon
-        startup next time.
+        The first time you start this program, it will ask where you wallpapers
+        are. Select the folder containing them, and hit ok.
 
 		First you will be asked to give the name of the image to crop
 		As long as the wallpaper extensions are {'.jpg', '.jpeg', '.png'}
@@ -92,26 +84,14 @@ def stop():
 
 
 def getuserinfo():
-    global searchloc, userscreenwidth, userscreenheight, f
+    global searchloc, f
     confirm = True
-    while confirm:
-        userscreenwidth = int(raw_input('What is your screen width in pixels: '))
-        userscreenheight = int(raw_input('What is your screen height in pixels: '))
-        print('Where are your wallpapers located?')
-        print('i.e. ' + str(searchloc) + 'Desktop/Wallpapers')
-        print('NOTE: Use FORWARD SLASHES instead of backslashes')
-        f = raw_input('Location: ')
-        print('\n\n PLEASE CONFIRM THIS INFORMATION')
-        print('Screen width: ' + str(userscreenwidth) + ' pixels')
-        print('Screen height: ' + str(userscreenheight) + ' pixels')
-        print('Wallpaper location: ' + str(f))
-        if raw_input('"yes" for confirm, "no" to deny and reinput info: ') == 'yes':
-            confirm = False
-        else:
-            print('\n\n')
+    root = Tkinter.Tk()
+    root.withdraw()
+    dir_opt = options = {}
+    options['title'] = 'Select the folder containing your wallpapers'
+    f = tkFileDialog.askdirectory(**dir_opt)
     tmp = open('imageresizeruserinfo.txt', 'w')
-    tmp.write(str(userscreenwidth) + '\n')
-    tmp.write(str(userscreenheight) + '\n')
     tmp.write(str(f) + '\n')
     tmp.write(str(tutorialtext) + '\n')
     tmp.close()
@@ -120,13 +100,14 @@ def getuserinfo():
 # scale size for cropping
 scalesize = .75
 searchloc = 'C:/Users/' + str(getpass.getuser()) + '/'
+user32 = ctypes.windll.user32
+userscreenwidth = user32.GetSystemMetrics(0)
+userscreenheight = user32.GetSystemMetrics(1)
 if os.path.isdir(searchloc):
     os.chdir(searchloc)
     if os.path.isfile('imageresizeruserinfo.txt'):
         try:
             tmp = open('imageresizeruserinfo.txt', 'r')
-            userscreenwidth = int(tmp.readline())
-            userscreenheight = int(tmp.readline())
             f = tmp.readline().rstrip('\n')
             tmp.close()
         except:
@@ -141,8 +122,6 @@ else:
     stop()
 """
 # user screen's resoltuion
-userscreenwidth = 1920
-userscreenheight = 1080
 # path to user wallpapers/images
 f = 'C:/Users/Mitsuru/Desktop/Wallpapers/'
 """
