@@ -36,11 +36,16 @@ Using the program
         image will be placed in the right bottom corner (by default) and create
         a simple minimalistic wallpaper
 
+        If your image has a background color that is not white, hit F to
+        fill the background of the entire image with the color of the pixel on the
+        mouse
+
     Controls:
         WASD or arrowkeys to move the crop box or image around
         ENTER to confirm region/image location
         ESCAPE to cancel selection
         Q to quit the program without any changes
+        F to fill background with color at current mouse pixel
         SPACE to invert the color ofthe selection box
 
     Inputs:
@@ -129,8 +134,15 @@ else:
     while not os.path.isdir(f):
         getuserinfo()
     os.chdir(f)
-print('For instructions on using this program, go to')
-print('C:\\Users\\' + str(getpass.getuser()) + '\\imageresizeruserinfo.txt\\')
+os.chdir('c:/users/mitsuru/desktop/testpapers/')
+print('Basic Usage:')
+print('Arrow keys or WASD to move box or image around')
+print('Space to invert box color (for dark pictures)')
+print('F in minimalistic mode to fill background color with a certain pixel')
+print('Enter to confirm')
+print('Q to quit\n')
+print('For detailed instructions on using this program, go to')
+print('C:\\Users\\' + str(getpass.getuser()) + '\\imageresizeruserinfo.txt\\\n')
 imgname = raw_input('File name:')
 resizemode = raw_input('Resize mode (y/n): ') == 'y'
 # os.chdir('C:/Users/Mitsuru/Desktop/testpapers/')
@@ -219,16 +231,22 @@ right = False
 ask = False  # check user confirmation
 fontObj = pygame.font.Font('freesansbold.ttf', 14)
 msg = 'Press ENTER again to confirm, ESCAPE to cancel'
+fillmsg = 'Mouse over pixel to color background with, hit f again to cancel'
+movemsg1 = 'Use arrow keys or WASD to move the cropping region around, ENTER to confirm'
+movemsg2 = 'Use arrow keys or WASD to move the image around, ENTER to confirm'
 time = 0  # for picture acceleration
 movedist = 1
 currentcolor = pygame.Color(0, 0, 0)
+fillcolor = pygame.Color(255, 255, 255)
+fillmode = False
 if resizemode:  # if picture is black, change item to white so box is viewable
     white = False
 else:  # minimalistic picture view mode
     xloc = (userscreenwidth * scalesize) - moveimg.get_size()[0] - 10
     yloc = (userscreenheight * scalesize) - moveimg.get_size()[1] - 10
+    mousex=mousey=0
 while isworking:
-    windowSurfaceObj.fill(pygame.Color(255, 255, 255))
+    windowSurfaceObj.fill(fillcolor)
     if resizemode:
         windowSurfaceObj.blit(resizedimg, (0, 0))
         pygame.draw.rect(windowSurfaceObj, currentcolor, rectangle, 1)
@@ -293,6 +311,22 @@ while isworking:
         msgRectobj.topleft = (5, 5)
         pygame.draw.rect(windowSurfaceObj, currentcolor,(msgRectobj.left - 2, msgRectobj.top - 2, msgRectobj.width + 2, msgRectobj.height + 2), 0)
         windowSurfaceObj.blit(msgSurfaceObj, msgRectobj)
+    elif fillmode:
+        fillcolor = windowSurfaceObj.get_at((mousex, mousey))
+        msgSurfaceObj = fontObj.render(fillmsg, False, pygame.Color(255, 0, 0))
+        msgRectobj = msgSurfaceObj.get_rect()
+        msgRectobj.topleft = (5, 5)
+        pygame.draw.rect(windowSurfaceObj, currentcolor,(msgRectobj.left - 2, msgRectobj.top - 2, msgRectobj.width + 2, msgRectobj.height + 2), 0)
+        windowSurfaceObj.blit(msgSurfaceObj, msgRectobj)
+    else:
+        if resizemode:
+            msgSurfaceObj = fontObj.render(movemsg1, False, pygame.Color(255, 0, 0))
+        else:
+            msgSurfaceObj = fontObj.render(movemsg2, False, pygame.Color(255, 0, 0))
+        msgRectobj = msgSurfaceObj.get_rect()
+        msgRectobj.topleft = (5, 5)
+        pygame.draw.rect(windowSurfaceObj, currentcolor,(msgRectobj.left - 2, msgRectobj.top - 2, msgRectobj.width + 2, msgRectobj.height + 2), 0)
+        windowSurfaceObj.blit(msgSurfaceObj, msgRectobj)
     for event in pygame.event.get():
         if event.type == QUIT:
             del im
@@ -315,6 +349,13 @@ while isworking:
                     del im2
                 cleanup()
                 stop()
+            elif event.key == K_f:
+                if fillmode:
+                    fillmode = False
+                    fillcolor = pygame.Color(255, 255, 255)
+                else:
+                    fillmode = True
+                    mousex, mousey = pygame.mouse.get_pos()
             elif event.key == K_SPACE:
                 if white:
                     currentcolor = pygame.Color(0, 0, 0)
@@ -340,6 +381,9 @@ while isworking:
                 down = False
             if not left and not right and not up and not down:
                 time = 0
+        elif event.type == MOUSEMOTION and fillmode:
+            mousex, mousey = event.pos
+    
     pygame.display.update()
     time += 30
     fpsClock.tick(30)
@@ -360,7 +404,7 @@ else:
     im = Image.open(imgname)
     #imtmp = Image.open('scaleoutput.jpg')
     #im2 = imtmp.resize((int(1.0 * im.size[0] / scalesize), int(1.0 * im.size[1] / scalesize)),Image.ANTIALIAS)
-    imtmpcreate = Image.new("RGB", (userscreenwidth, userscreenheight), "white")
+    imtmpcreate = Image.new("RGB", (userscreenwidth, userscreenheight), (fillcolor[0], fillcolor[1], fillcolor[2]))
     xloc = int(xloc / scalesize)
     yloc = int(yloc / scalesize)
     imtmpcreate.paste(im, (xloc, yloc))
