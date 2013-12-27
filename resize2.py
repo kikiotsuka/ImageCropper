@@ -90,7 +90,7 @@ def getuserinfo():
         f = raw_input('Enter wallpaper location: ')
         print('Are you sure this is correct?')
         print('Wallpaper location: ' + str(f))
-        if raw_input('"yes" or "no"') == 'yes':
+        if raw_input('"yes" or "no": ') == 'yes':
             confirm = False
     tmp = open('imageresizeruserinfo.txt', 'w')
     tmp.write(str(f) + '\n')
@@ -134,7 +134,6 @@ else:
     while not os.path.isdir(f):
         getuserinfo()
     os.chdir(f)
-os.chdir('c:/users/mitsuru/desktop/testpapers/')
 print('Basic Usage:')
 print('Arrow keys or WASD to move box or image around')
 print('Space to invert box color (for dark pictures)')
