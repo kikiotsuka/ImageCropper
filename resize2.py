@@ -139,6 +139,7 @@ print('Arrow keys or WASD to move box or image around')
 print('Space to invert box color (for dark pictures)')
 print('F in minimalistic mode to fill background color with a certain pixel')
 print('Enter to confirm')
+print('M to toggle message')
 print('Q to quit\n')
 print('For detailed instructions on using this program, go to')
 print('C:\\Users\\' + str(getpass.getuser()) + '\\imageresizeruserinfo.txt\\\n')
@@ -238,6 +239,7 @@ movedist = 1
 currentcolor = pygame.Color(0, 0, 0)
 fillcolor = pygame.Color(255, 255, 255)
 fillmode = False
+showmessage = True
 if resizemode:  # if picture is black, change item to white so box is viewable
     white = False
 else:  # minimalistic picture view mode
@@ -304,20 +306,20 @@ while isworking:
             rectangle.bottom = windowSurfaceObj.get_size()[1]
         if rectangle.right > windowSurfaceObj.get_size()[0]:
             rectangle.right = windowSurfaceObj.get_size()[0]
-    if ask:  # ask image confirmation question
+    if ask and showmessage:  # ask image confirmation question
         msgSurfaceObj = fontObj.render(msg, False, pygame.Color(255, 0, 0))
         msgRectobj = msgSurfaceObj.get_rect()
         msgRectobj.topleft = (5, 5)
         pygame.draw.rect(windowSurfaceObj, currentcolor,(msgRectobj.left - 2, msgRectobj.top - 2, msgRectobj.width + 2, msgRectobj.height + 2), 0)
         windowSurfaceObj.blit(msgSurfaceObj, msgRectobj)
-    elif fillmode:
+    elif fillmode and showmessage:
         fillcolor = windowSurfaceObj.get_at((mousex, mousey))
         msgSurfaceObj = fontObj.render(fillmsg, False, pygame.Color(255, 0, 0))
         msgRectobj = msgSurfaceObj.get_rect()
         msgRectobj.topleft = (5, 5)
         pygame.draw.rect(windowSurfaceObj, currentcolor,(msgRectobj.left - 2, msgRectobj.top - 2, msgRectobj.width + 2, msgRectobj.height + 2), 0)
         windowSurfaceObj.blit(msgSurfaceObj, msgRectobj)
-    else:
+    elif showmessage:
         if resizemode:
             msgSurfaceObj = fontObj.render(movemsg1, False, pygame.Color(255, 0, 0))
         else:
@@ -355,6 +357,8 @@ while isworking:
                 else:
                     fillmode = True
                     mousex, mousey = pygame.mouse.get_pos()
+            elif event.key == K_m:
+                showmessage = not showmessage
             elif event.key == K_SPACE:
                 if white:
                     currentcolor = pygame.Color(0, 0, 0)
