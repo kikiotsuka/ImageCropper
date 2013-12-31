@@ -46,6 +46,7 @@ Using the program
         ESCAPE to cancel selection
         Q to quit the program without any changes
         F to fill background with color at current mouse pixel
+        M to toggle message
         SPACE to invert the color ofthe selection box
 
     Inputs:
