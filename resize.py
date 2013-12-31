@@ -27,42 +27,48 @@ Things you must install to make this work
 """
 tutorialtext = """
 Using the program
-	This program has 2 modes
-	Resize-and-crop mode:
-		This mode will first resize your image to a size suitable for your
-		screen, then go into crop mode, where you can crop a portion of
-		the image to use as a wallpaper
-	Minimalistic mode:
-		This mode is for if you have a small image, such as 500px by 500px,
-		and you want it as a wallpaper. The general idea is that the small
-		image will be placed in the right bottom corner (by default) and create
-		a simple minimalistic wallpaper
+    This program has 2 modes
+    Resize-and-crop mode:
+        This mode will first resize your image to a size suitable for your
+        screen, then go into crop mode, where you can crop a portion of
+        the image to use as a wallpaper
+    Minimalistic mode:
+        This mode is for if you have a small image, such as 500px by 500px,
+        and you want it as a wallpaper. The general idea is that the small
+        image will be placed in the right bottom corner (by default) and create
+        a simple minimalistic wallpaper
 
-	Controls:
-		WASD or arrowkeys to move the crop box or image around
-		ENTER to confirm region/image location
-		ESCAPE to cancel selection
-		Q to quit the program without any changes
+        If your image has a background color that is not white, hit F to
+        fill the background of the entire image with the color of the pixel on the
+        mouse
+
+    Controls:
+        WASD or arrowkeys to move the crop box or image around
+        ENTER to confirm region/image location
+        ESCAPE to cancel selection
+        Q to quit the program without any changes
+        F to fill background with color at current mouse pixel
+        M to toggle message
         SPACE to invert the color ofthe selection box
 
-	Inputs:
+    Inputs:
         The first time you start this program, it will ask where you wallpapers
         are. Select the folder containing them, and hit ok.
 
-		First you will be asked to give the name of the image to crop
-		As long as the wallpaper extensions are {'.jpg', '.jpeg', '.png'}
-		you do not need to include the extension. However, if there are multiple
-		files with the same name but different extension, you must include the
-		extension to select the correct image, otherwise it will attempt to find
-		the image with the extensions listed above in that order
+        First you will be asked to give the name of the image to crop
+        As long as the wallpaper extensions are {'.jpg', '.jpeg', '.png'}
+        you do not need to include the extension. However, if there are multiple
+        files with the same name but different extension, you must include the
+        extension to select the correct image, otherwise it will attempt to find
+        the image with the extensions listed above in that order
 
-		Next, you will be asked to use resize mode
-			Type in 'y' for resize mode, and anything else for minimalistic mode
+        Next, you will be asked to use resize mode
+            Type in 'y' for resize mode, and anything else for minimalistic mode
 
-	Note:
-		After finishing cropping/exiting the program, there will be a 4 second pause
-		Please do not confuse this with a bug or lag, this is a feature if the user
-		needs to read error messages on the console
+    Note:
+        After finishing cropping/exiting the program, there will be a 4 second pause
+        Please do not confuse this with a bug or lag, this is a feature if the user
+        needs to read error messages on the console
 """
 
 def cleanup():
@@ -130,7 +136,14 @@ else:
     while not os.path.isdir(f):
         getuserinfo()
     os.chdir(f)
-print('For instructions on using this program, go to')
+print('Basic Usage:')
+print('Arrow keys or WASD to move box or image around')
+print('Space to invert box color (for dark pictures)')
+print('F in minimalistic mode to fill background color with a certain pixel')
+print('Enter to confirm')
+print('M to toggle message')
+print('Q to quit\n')
+print('For detailed instructions on using this program, go to')
 print('C:\\Users\\' + str(getpass.getuser()) + '\\imageresizeruserinfo.txt\\')
 imgname = raw_input('File name:')
 resizemode = raw_input('Resize mode (y/n): ') == 'y'
@@ -207,7 +220,9 @@ else:  # simply load image for minimalistic mode
         int((userscreenwidth - userscreenwidth * scalesize) / 2), int((userscreenheight - userscreenheight * scalesize) / 2))
     windowSurfaceObj = pygame.display.set_mode(
         (int(userscreenwidth * scalesize), int(userscreenheight * scalesize)))
-    moveimg = pygame.image.load('tmpcopy.jpg')
+    #moveimg = pygame.image.load('tmpcopy.jpg')
+    im.resize((int(im.size[0] * scalesize), int(im.size[1] * scalesize)), Image.ANTIALIAS).save('scaleoutput.jpg')
+    moveimg = pygame.image.load('scaleoutput.jpg')
 isworking = True
 
 print('Initializing window')
@@ -219,16 +234,23 @@ right = False
 ask = False  # check user confirmation
 fontObj = pygame.font.Font('freesansbold.ttf', 14)
 msg = 'Press ENTER again to confirm, ESCAPE to cancel'
+fillmsg = 'Mouse over pixel to color background with, hit f again to cancel'
+movemsg1 = 'Use arrow keys or WASD to move the cropping region around, ENTER to confirm'
+movemsg2 = 'Use arrow keys or WASD to move the image around, ENTER to confirm'
 time = 0  # for picture acceleration
 movedist = 1
 currentcolor = pygame.Color(0, 0, 0)
+fillcolor = pygame.Color(255, 255, 255)
+fillmode = False
+showmessage = True
 if resizemode:  # if picture is black, change item to white so box is viewable
     white = False
 else:  # minimalistic picture view mode
     xloc = (userscreenwidth * scalesize) - moveimg.get_size()[0] - 10
     yloc = (userscreenheight * scalesize) - moveimg.get_size()[1] - 10
+    mousex=mousey=0
 while isworking:
-    windowSurfaceObj.fill(pygame.Color(255, 255, 255))
+    windowSurfaceObj.fill(fillcolor)
     if resizemode:
         windowSurfaceObj.blit(resizedimg, (0, 0))
         pygame.draw.rect(windowSurfaceObj, currentcolor, rectangle, 1)
@@ -287,12 +309,27 @@ while isworking:
             rectangle.bottom = windowSurfaceObj.get_size()[1]
         if rectangle.right > windowSurfaceObj.get_size()[0]:
             rectangle.right = windowSurfaceObj.get_size()[0]
-    if ask:  # ask image confirmation question
+    if ask and showmessage:  # ask image confirmation question
         msgSurfaceObj = fontObj.render(msg, False, pygame.Color(255, 0, 0))
         msgRectobj = msgSurfaceObj.get_rect()
         msgRectobj.topleft = (5, 5)
-        pygame.draw.rect(windowSurfaceObj, currentcolor,
-            (msgRectobj.left - 2, msgRectobj.top - 2, msgRectobj.width + 2, msgRectobj.height + 2), 0)
+        pygame.draw.rect(windowSurfaceObj, currentcolor,(msgRectobj.left - 2, msgRectobj.top - 2, msgRectobj.width + 2, msgRectobj.height + 2), 0)
+        windowSurfaceObj.blit(msgSurfaceObj, msgRectobj)
+    elif fillmode and showmessage:
+        fillcolor = windowSurfaceObj.get_at((mousex, mousey))
+        msgSurfaceObj = fontObj.render(fillmsg, False, pygame.Color(255, 0, 0))
+        msgRectobj = msgSurfaceObj.get_rect()
+        msgRectobj.topleft = (5, 5)
+        pygame.draw.rect(windowSurfaceObj, currentcolor,(msgRectobj.left - 2, msgRectobj.top - 2, msgRectobj.width + 2, msgRectobj.height + 2), 0)
+        windowSurfaceObj.blit(msgSurfaceObj, msgRectobj)
+    elif showmessage:
+        if resizemode:
+            msgSurfaceObj = fontObj.render(movemsg1, False, pygame.Color(255, 0, 0))
+        else:
+            msgSurfaceObj = fontObj.render(movemsg2, False, pygame.Color(255, 0, 0))
+        msgRectobj = msgSurfaceObj.get_rect()
+        msgRectobj.topleft = (5, 5)
+        pygame.draw.rect(windowSurfaceObj, currentcolor,(msgRectobj.left - 2, msgRectobj.top - 2, msgRectobj.width + 2, msgRectobj.height + 2), 0)
         windowSurfaceObj.blit(msgSurfaceObj, msgRectobj)
     for event in pygame.event.get():
         if event.type == QUIT:
@@ -316,6 +353,15 @@ while isworking:
                     del im2
                 cleanup()
                 stop()
+            elif event.key == K_f:
+                if fillmode:
+                    fillmode = False
+                    fillcolor = pygame.Color(255, 255, 255)
+                else:
+                    fillmode = True
+                    mousex, mousey = pygame.mouse.get_pos()
+            elif event.key == K_m:
+                showmessage = not showmessage
             elif event.key == K_SPACE:
                 if white:
                     currentcolor = pygame.Color(0, 0, 0)
@@ -341,26 +387,37 @@ while isworking:
                 down = False
             if not left and not right and not up and not down:
                 time = 0
+        elif event.type == MOUSEMOTION and fillmode:
+            mousex, mousey = event.pos
+    
     pygame.display.update()
     time += 30
     fpsClock.tick(30)
+    """
     if not ask and not isworking and not resizemode:
         windowSurfaceObj.fill(pygame.Color(255, 255, 255))
         windowSurfaceObj.blit(moveimg, (xloc, yloc))
         pygame.image.save(windowSurfaceObj, imgname)
+    """
 
 # crop selected region from picture
 if resizemode:
-    im = im2.crop(
-        (rectangle.left, rectangle.top, rectangle.right, rectangle.bottom))
+    im = im2.crop((rectangle.left, rectangle.top, rectangle.right, rectangle.bottom))
     #im = im2.crop((rectangle.x, rectangle.y, rectangle.x + rectangle.width, rectangle.y + rectangle.height))
+    im.resize((int(1.0 * im.size[0] / scalesize), int(1.0 * im.size[1] / scalesize)),Image.ANTIALIAS).save(imgname)
     del im2
 else:
     im = Image.open(imgname)
+    #imtmp = Image.open('scaleoutput.jpg')
+    #im2 = imtmp.resize((int(1.0 * im.size[0] / scalesize), int(1.0 * im.size[1] / scalesize)),Image.ANTIALIAS)
+    imtmpcreate = Image.new("RGB", (userscreenwidth, userscreenheight), (fillcolor[0], fillcolor[1], fillcolor[2]))
+    xloc = int(xloc / scalesize)
+    yloc = int(yloc / scalesize)
+    imtmpcreate.paste(im, (xloc, yloc))
+    imtmpcreate.save(imgname)
+
+    #im = Image.open(imgname)
 # scale picture back to user resolution and save
-im.resize(
-    (int(1.0 * im.size[0] / scalesize), int(1.0 * im.size[1] / scalesize)),
-    Image.ANTIALIAS).save(imgname)
 del im
 print('Operation has been completed. The altered image has been saved as "' +
       str(imgname) + '"')
