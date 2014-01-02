@@ -48,9 +48,13 @@ Using the program
         ENTER to confirm region/image location
         ESCAPE to cancel selection
         Q to quit the program without any changes
-        F to fill background with color at current mouse pixel
         M to toggle message
-        SPACE to invert the color ofthe selection box
+        Resize Mode only:
+            SPACE to invert the color ofthe selection box
+        Minimalistic Mode only:
+            F to fill background with color at current mouse pixel
+            Press and/or hold '+' or '-' to resize the image
+                WARNING: Bigger image = more computation = heavy lag
 
     Inputs:
         The first time you start this program, it will ask where you wallpapers
@@ -145,16 +149,20 @@ else:
     while not os.path.isdir(f):
         getuserinfo()
     os.chdir(f)
-print('Basic Usage:')
+#os.chdir('C:/Users/Mitsuru/Desktop/testpapers')
+print('\n\nBASIC USAGE AND INSTRUCTIONS\n\n')
 print('Arrow keys or WASD to move box or image around')
-print('Space to invert box color (for dark pictures)')
-print('F in minimalistic mode to fill background color with a certain pixel')
 print('Enter to confirm')
-print('M to toggle message')
+print('M to toggle information message (DISABLED BY DEFAULT)')
 print('Q to quit\n')
+print('Resize Mode:')
+print('    Space to invert box color (for dark pictures)')
+print('Minimalistic Mode:')
+print('    F then mouse over a pixel to color background the color at mouse location')
+print('    Press and/or hold "+" or "-" to resize the image\n')
 print('For detailed instructions on using this program, go to')
 print('C:\\Users\\' + str(getpass.getuser()) + '\\imageresizeruserinfo.txt\\\n')
-imgname = raw_input('File name:')
+imgname = raw_input('Image name:')
 resizemode = raw_input('Resize mode (y/n): ') == 'y'
 # os.chdir('C:/Users/Mitsuru/Desktop/testpapers/')
 pygame.init()
@@ -251,12 +259,18 @@ currentcolor = pygame.Color(0, 0, 0)
 fillcolor = pygame.Color(255, 255, 255)
 fillmode = False
 showmessage = False
+resizeval = 0
+resizevalincrement = 1
 if resizemode:  # if picture is black, change item to white so box is viewable
     white = False
 else:  # minimalistic picture view mode
     xloc = (userscreenwidth * scalesize) - moveimg.get_size()[0] - 10
     yloc = (userscreenheight * scalesize) - moveimg.get_size()[1] - 10
     mousex=mousey=0
+    plus = False
+    minus = False
+    sizetime = 0
+    keepresizing = False
 while isworking:
     windowSurfaceObj.fill(fillcolor)
     if resizemode:
@@ -323,13 +337,14 @@ while isworking:
         msgRectobj.topleft = (5, 5)
         pygame.draw.rect(windowSurfaceObj, currentcolor,(msgRectobj.left - 2, msgRectobj.top - 2, msgRectobj.width + 2, msgRectobj.height + 2), 0)
         windowSurfaceObj.blit(msgSurfaceObj, msgRectobj)
-    elif fillmode and showmessage:
+    elif fillmode:
         fillcolor = windowSurfaceObj.get_at((mousex, mousey))
-        msgSurfaceObj = fontObj.render(fillmsg, False, pygame.Color(255, 0, 0))
-        msgRectobj = msgSurfaceObj.get_rect()
-        msgRectobj.topleft = (5, 5)
-        pygame.draw.rect(windowSurfaceObj, currentcolor,(msgRectobj.left - 2, msgRectobj.top - 2, msgRectobj.width + 2, msgRectobj.height + 2), 0)
-        windowSurfaceObj.blit(msgSurfaceObj, msgRectobj)
+        if showmessage:
+            msgSurfaceObj = fontObj.render(fillmsg, False, pygame.Color(255, 0, 0))
+            msgRectobj = msgSurfaceObj.get_rect()
+            msgRectobj.topleft = (5, 5)
+            pygame.draw.rect(windowSurfaceObj, currentcolor,(msgRectobj.left - 2, msgRectobj.top - 2, msgRectobj.width + 2, msgRectobj.height + 2), 0)
+            windowSurfaceObj.blit(msgSurfaceObj, msgRectobj)
     elif showmessage:
         if resizemode:
             msgSurfaceObj = fontObj.render(movemsg1, False, pygame.Color(255, 0, 0))
@@ -368,6 +383,21 @@ while isworking:
                 else:
                     fillmode = True
                     mousex, mousey = pygame.mouse.get_pos()
+            elif event.key in (K_EQUALS, K_MINUS):
+                if event.key == K_EQUALS:
+                    resizeval += 1
+                    plus = True
+                    sizetime = 0
+                    tmpim = Image.open('tmpcopy.jpg')
+                    tmpim.resize((int((tmpim.size[0] + resizeval) * scalesize), int((tmpim.size[1] + resizeval) * scalesize)), Image.BILINEAR).save('scaleoutput.jpg')
+                    moveimg = pygame.image.load('scaleoutput.jpg')
+                elif event.key == K_MINUS:
+                    resizeval -= 1
+                    minus = True
+                    sizetime = 0
+                    tmpim = Image.open('tmpcopy.jpg')
+                    tmpim.resize((int((tmpim.size[0] + resizeval) * scalesize), int((tmpim.size[1] + resizeval) * scalesize)), Image.BILINEAR).save('scaleoutput.jpg')
+                    moveimg = pygame.image.load('scaleoutput.jpg')
             elif event.key == K_m:
                 showmessage = not showmessage
             elif event.key == K_SPACE:
@@ -393,11 +423,36 @@ while isworking:
                 up = False
             elif event.key in (K_DOWN, K_s):
                 down = False
+            elif event.key in (K_EQUALS, K_MINUS):
+                if event.key == K_EQUALS:
+                    plus = False
+                elif event.key == K_MINUS:
+                    minus = False
             if not left and not right and not up and not down:
                 time = 0
         elif event.type == MOUSEMOTION and fillmode:
             mousex, mousey = event.pos
-    
+    if plus or minus:
+        sizetime += 30
+    else:
+        keepresizing = False
+    if sizetime > 500 and (plus or minus):
+        keepresizing = True
+    if sizetime > 750 and (plus or minus):
+        resizevalincrement = 2
+    elif sizetime > 1000 and (plus or minus):
+        resizevalincrement = 3
+    if keepresizing:
+        if plus:
+            resizeval += resizevalincrement
+            tmpim = Image.open('tmpcopy.jpg')
+            tmpim.resize((int((tmpim.size[0] + resizeval) * scalesize), int((tmpim.size[1] + resizeval) * scalesize)), Image.BILINEAR).save('scaleoutput.jpg')
+            moveimg = pygame.image.load('scaleoutput.jpg')
+        elif minus:
+            resizeval -= resizevalincrement
+            tmpim = Image.open('tmpcopy.jpg')
+            tmpim.resize((int((tmpim.size[0] + resizeval) * scalesize), int((tmpim.size[1] + resizeval) * scalesize)), Image.BILINEAR).save('scaleoutput.jpg')
+            moveimg = pygame.image.load('scaleoutput.jpg')
     pygame.display.update()
     time += 30
     fpsClock.tick(30)
@@ -415,7 +470,7 @@ if resizemode:
     im.resize((int(1.0 * im.size[0] / scalesize), int(1.0 * im.size[1] / scalesize)),Image.ANTIALIAS).save(imgname)
     del im2
 else:
-    im = Image.open(imgname)
+    im = Image.open(imgname).resize((int(tmpim.size[0] + resizeval), int(tmpim.size[1] + resizeval)), Image.ANTIALIAS)
     #imtmp = Image.open('scaleoutput.jpg')
     #im2 = imtmp.resize((int(1.0 * im.size[0] / scalesize), int(1.0 * im.size[1] / scalesize)),Image.ANTIALIAS)
     imtmpcreate = Image.new("RGB", (userscreenwidth, userscreenheight), (fillcolor[0], fillcolor[1], fillcolor[2]))
