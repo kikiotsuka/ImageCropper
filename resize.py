@@ -1,6 +1,14 @@
 #!/usr/bin/python2
 # -*- coding: utf-8 -*-
 
+"""
+===NOTICE===NOTICE===NOTICE===NOTICE===NOTICE===NOTICE===NOTICE===NOTICE===NOTICE===NOTICE===
+THIS PROGRAM WILL NOT BE UPDATED WITH NEW FEATURES
+
+(I'm lazy and I don't need the GUI and it won't compile happily anyways)
+===NOTICE===NOTICE===NOTICE===NOTICE===NOTICE===NOTICE===NOTICE===NOTICE===NOTICE===NOTICE===
+"""
+
 from __future__ import print_function
 from time import sleep
 import ctypes
