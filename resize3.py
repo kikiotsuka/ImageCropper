@@ -432,27 +432,28 @@ while isworking:
                 time = 0
         elif event.type == MOUSEMOTION and fillmode:
             mousex, mousey = event.pos
-    if plus or minus:
-        sizetime += 30
-    else:
-        keepresizing = False
-    if sizetime > 500 and (plus or minus):
-        keepresizing = True
-    if sizetime > 750 and (plus or minus):
-        resizevalincrement = 2
-    elif sizetime > 1000 and (plus or minus):
-        resizevalincrement = 3
-    if keepresizing:
-        if plus:
-            resizeval += resizevalincrement
-            tmpim = Image.open('tmpcopy.jpg')
-            tmpim.resize((int((tmpim.size[0] + resizeval) * scalesize), int((tmpim.size[1] + resizeval) * scalesize)), Image.BILINEAR).save('scaleoutput.jpg')
-            moveimg = pygame.image.load('scaleoutput.jpg')
-        elif minus:
-            resizeval -= resizevalincrement
-            tmpim = Image.open('tmpcopy.jpg')
-            tmpim.resize((int((tmpim.size[0] + resizeval) * scalesize), int((tmpim.size[1] + resizeval) * scalesize)), Image.BILINEAR).save('scaleoutput.jpg')
-            moveimg = pygame.image.load('scaleoutput.jpg')
+    if not resizemode:
+        if plus or minus:
+            sizetime += 30
+        else:
+            keepresizing = False
+        if sizetime > 500 and (plus or minus):
+            keepresizing = True
+        if sizetime > 750 and (plus or minus):
+            resizevalincrement = 2
+        elif sizetime > 1000 and (plus or minus):
+            resizevalincrement = 3
+        if keepresizing:
+            if plus:
+                resizeval += resizevalincrement
+                tmpim = Image.open('tmpcopy.jpg')
+                tmpim.resize((int((tmpim.size[0] + resizeval) * scalesize), int((tmpim.size[1] + resizeval) * scalesize)), Image.BILINEAR).save('scaleoutput.jpg')
+                moveimg = pygame.image.load('scaleoutput.jpg')
+            elif minus:
+                resizeval -= resizevalincrement
+                tmpim = Image.open('tmpcopy.jpg')
+                tmpim.resize((int((tmpim.size[0] + resizeval) * scalesize), int((tmpim.size[1] + resizeval) * scalesize)), Image.BILINEAR).save('scaleoutput.jpg')
+                moveimg = pygame.image.load('scaleoutput.jpg')
     pygame.display.update()
     time += 30
     fpsClock.tick(30)
@@ -470,7 +471,8 @@ if resizemode:
     im.resize((int(1.0 * im.size[0] / scalesize), int(1.0 * im.size[1] / scalesize)),Image.ANTIALIAS).save(imgname)
     del im2
 else:
-    im = Image.open(imgname).resize((int(tmpim.size[0] + resizeval), int(tmpim.size[1] + resizeval)), Image.ANTIALIAS)
+    im = Image.open(imgname)
+    im.resize((int(im.size[0] + resizeval), int(im.size[1] + resizeval)), Image.ANTIALIAS)
     #imtmp = Image.open('scaleoutput.jpg')
     #im2 = imtmp.resize((int(1.0 * im.size[0] / scalesize), int(1.0 * im.size[1] / scalesize)),Image.ANTIALIAS)
     imtmpcreate = Image.new("RGB", (userscreenwidth, userscreenheight), (fillcolor[0], fillcolor[1], fillcolor[2]))
