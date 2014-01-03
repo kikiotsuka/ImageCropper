@@ -149,7 +149,7 @@ else:
     while not os.path.isdir(f):
         getuserinfo()
     os.chdir(f)
-#os.chdir('C:/Users/Mitsuru/Desktop/testpapers')
+#os.chdir('C:/Users/Mitsuru/Desktop/testpapers') #FIXME========================================================== DEBUG CODE ==================================================
 print('\n\nBASIC USAGE AND INSTRUCTIONS\n\n')
 print('Arrow keys or WASD to move box or image around')
 print('Enter to confirm')
@@ -239,6 +239,9 @@ else:  # simply load image for minimalistic mode
     #moveimg = pygame.image.load('tmpcopy.jpg')
     im.resize((int(im.size[0] * scalesize), int(im.size[1] * scalesize)), Image.ANTIALIAS).save('scaleoutput.jpg')
     moveimg = pygame.image.load('scaleoutput.jpg')
+    moveimgdimension = moveimg.get_size()
+    aspectratio = 1.0 * moveimgdimension[0] / moveimgdimension[1]
+
 isworking = True
 
 print('Initializing window')
@@ -387,17 +390,15 @@ while isworking:
                 if event.key == K_EQUALS:
                     resizeval += 1
                     plus = True
-                    sizetime = 0
-                    tmpim = Image.open('tmpcopy.jpg')
-                    tmpim.resize((int((tmpim.size[0] + resizeval) * scalesize), int((tmpim.size[1] + resizeval) * scalesize)), Image.BILINEAR).save('scaleoutput.jpg')
-                    moveimg = pygame.image.load('scaleoutput.jpg')
                 elif event.key == K_MINUS:
                     resizeval -= 1
                     minus = True
-                    sizetime = 0
-                    tmpim = Image.open('tmpcopy.jpg')
-                    tmpim.resize((int((tmpim.size[0] + resizeval) * scalesize), int((tmpim.size[1] + resizeval) * scalesize)), Image.BILINEAR).save('scaleoutput.jpg')
-                    moveimg = pygame.image.load('scaleoutput.jpg')
+                sizetime = 0
+                tmpim = Image.open('tmpcopy.jpg')
+                tmpx = int((tmpim.size[0] + resizeval) * scalesize)
+                tmpy = int(tmpx / aspectratio)
+                tmpim.resize((tmpx, tmpy), Image.BILINEAR).save('scaleoutput.jpg')
+                moveimg = pygame.image.load('scaleoutput.jpg')
             elif event.key == K_m:
                 showmessage = not showmessage
             elif event.key == K_SPACE:
@@ -433,27 +434,30 @@ while isworking:
         elif event.type == MOUSEMOTION and fillmode:
             mousex, mousey = event.pos
     if not resizemode:
+        #print('resizevalincrement:' + str(resizevalincrement) + ', time:' + str(sizetime))
         if plus or minus:
             sizetime += 30
+            keepresizing = True
         else:
             keepresizing = False
-        if sizetime > 500 and (plus or minus):
-            keepresizing = True
-        if sizetime > 750 and (plus or minus):
+        if sizetime < 500 and (plus or minus):
+            resizevalincrement = 1
+        elif sizetime < 750 and (plus or minus):
             resizevalincrement = 2
-        elif sizetime > 1000 and (plus or minus):
+        elif sizetime < 1000 and (plus or minus):
             resizevalincrement = 3
+        elif sizetime < 1500 and (plus or minus):
+            resizevalincrement = 5
         if keepresizing:
             if plus:
                 resizeval += resizevalincrement
-                tmpim = Image.open('tmpcopy.jpg')
-                tmpim.resize((int((tmpim.size[0] + resizeval) * scalesize), int((tmpim.size[1] + resizeval) * scalesize)), Image.BILINEAR).save('scaleoutput.jpg')
-                moveimg = pygame.image.load('scaleoutput.jpg')
             elif minus:
                 resizeval -= resizevalincrement
-                tmpim = Image.open('tmpcopy.jpg')
-                tmpim.resize((int((tmpim.size[0] + resizeval) * scalesize), int((tmpim.size[1] + resizeval) * scalesize)), Image.BILINEAR).save('scaleoutput.jpg')
-                moveimg = pygame.image.load('scaleoutput.jpg')
+            tmpim = Image.open('tmpcopy.jpg')
+            tmpx = int((tmpim.size[0] * scalesize + resizeval * scalesize))
+            tmpy = int(tmpx / aspectratio)
+            tmpim.resize((tmpx, tmpy), Image.BILINEAR).save('scaleoutput.jpg')
+            moveimg = pygame.image.load('scaleoutput.jpg')
     pygame.display.update()
     time += 30
     fpsClock.tick(30)
@@ -471,10 +475,11 @@ if resizemode:
     im.resize((int(1.0 * im.size[0] / scalesize), int(1.0 * im.size[1] / scalesize)),Image.ANTIALIAS).save(imgname)
     del im2
 else:
-    im = Image.open(imgname)
-    im.resize((int(im.size[0] + resizeval), int(im.size[1] + resizeval)), Image.ANTIALIAS)
-    #imtmp = Image.open('scaleoutput.jpg')
-    #im2 = imtmp.resize((int(1.0 * im.size[0] / scalesize), int(1.0 * im.size[1] / scalesize)),Image.ANTIALIAS)
+    im = Image.open('tmpcopy.jpg')
+    tmpx = int(im.size[0] + resizeval)
+    tmpy = int(tmpx / aspectratio)
+    im = im.resize((tmpx, tmpy), Image.ANTIALIAS)
+    #im.resize((int((im.size[0] + resizeval)), int(im.size[1] + resizeval)), Image.ANTIALIAS)
     imtmpcreate = Image.new("RGB", (userscreenwidth, userscreenheight), (fillcolor[0], fillcolor[1], fillcolor[2]))
     xloc = int(xloc / scalesize)
     yloc = int(yloc / scalesize)
