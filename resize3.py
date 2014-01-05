@@ -413,6 +413,16 @@ while isworking:
                     isworking = False
                 else:
                     ask = True
+            elif event.key in (K_1, K_2, K_3):
+                if event.key == K_1:
+                    xloc = (userscreenwidth * scalesize) / 2 - moveimg.get_size()[0] / 2
+                    yloc = (userscreenheight * scalesize) / 2 - moveimg.get_size()[1] / 2
+                if event.key == K_2:
+                    xloc = (userscreenwidth * scalesize) - moveimg.get_size()[0] - 10
+                    yloc = (userscreenheight * scalesize) - moveimg.get_size()[1] - 10
+                if event.key == K_3:
+                    xloc = (userscreenwidth * scalesize) - moveimg.get_size()[0] - 10
+                    yloc = (userscreenheight * scalesize) - moveimg.get_size()[1]
             elif event.key == K_ESCAPE:
                 ask = False
         elif event.type == KEYUP:
