@@ -10,11 +10,9 @@ import os
 import getpass
 from pygame.locals import *
 from PIL import Image
-import glob
-"""
-import pyreadline.rlmain
-import readline
-"""
+#import glob
+#import pyreadline.rlmain
+#import readline
 
 """
 If you want to use this program for your own purposes, read here
@@ -109,14 +107,12 @@ def getuserinfo():
     tmp.write(str(f) + '\n')
     tmp.write(str(tutorialtext) + '\n')
     tmp.close()
-
 """
 #initialize autocomplete
 readline.set_completer_delims(' \t\n;')
 readline.parse_and_bind("tab: complete")
 readline.set_completer(complete)
 """
-
 #===variable constants===
 # scale size for cropping
 scalesize = .75
@@ -279,6 +275,13 @@ else:  # minimalistic picture view mode
     minus = False
     sizetime = 0
     keepresizing = False
+    k1=k2=k3=k4=k5=k6=k7=k8=k9=False
+    leftpos = 0
+    toppos = 0
+    rightpos = (userscreenwidth * scalesize) - moveimg.get_size()[0]
+    midxpos = (userscreenwidth * scalesize) / 2 - moveimg.get_size()[0] / 2
+    bottompos = (userscreenheight * scalesize) - moveimg.get_size()[1]
+    midypos = (userscreenheight * scalesize) / 2 - moveimg.get_size()[1] / 2
 while isworking:
     windowSurfaceObj.fill(fillcolor)
     if resizemode:
@@ -418,6 +421,16 @@ while isworking:
                     isworking = False
                 else:
                     ask = True
+            elif event.key in (K_KP1, K_KP2, K_KP3, K_KP4, K_KP5, K_KP6, K_KP7, K_KP8, K_KP9):
+                if event.key == K_KP1: k1 = True
+                elif event.key == K_KP2: k2 = True
+                elif event.key == K_KP3: k3 = True
+                elif event.key == K_KP4: k4 = True
+                elif event.key == K_KP5: k5 = True
+                elif event.key == K_KP6: k6 = True
+                elif event.key == K_KP7: k7 = True
+                elif event.key == K_KP8: k8 = True
+                elif event.key == K_KP9: k9 = True
             elif event.key == K_ESCAPE:
                 ask = False
         elif event.type == KEYUP:
@@ -434,6 +447,16 @@ while isworking:
                     plus = False
                 elif event.key == K_MINUS:
                     minus = False
+            elif event.key in (K_KP1, K_KP2, K_KP3, K_KP4, K_KP5, K_KP6, K_KP7, K_KP8, K_KP9):
+                if event.key == K_KP1: k1 = False
+                elif event.key == K_KP2: k2 = False
+                elif event.key == K_KP3: k3 = False
+                elif event.key == K_KP4: k4 = False
+                elif event.key == K_KP5: k5 = False
+                elif event.key == K_KP6: k6 = False
+                elif event.key == K_KP7: k7 = False
+                elif event.key == K_KP8: k8 = False
+                elif event.key == K_KP9: k9 = False
             if not left and not right and not up and not down:
                 time = 0
         elif event.type == MOUSEMOTION and fillmode:
@@ -463,6 +486,16 @@ while isworking:
             tmpy = int(tmpx / aspectratio)
             tmpim.resize((tmpx, tmpy), Image.BILINEAR).save('scaleoutput.jpg')
             moveimg = pygame.image.load('scaleoutput.jpg')
+    rightpos = (userscreenwidth * scalesize) - moveimg.get_size()[0]
+    midxpos = (userscreenwidth * scalesize) / 2 - moveimg.get_size()[0] / 2
+    bottompos = (userscreenheight * scalesize) - moveimg.get_size()[1]
+    midypos = (userscreenheight * scalesize) / 2 - moveimg.get_size()[1] / 2
+    if k1 or k4 or k7: xloc = leftpos
+    if k2 or k5 or k8: xloc = midxpos
+    if k3 or k6 or k9: xloc = rightpos
+    if k1 or k2 or k3: yloc = bottompos
+    if k4 or k5 or k6: yloc = midypos
+    if k7 or k8 or k9: yloc = toppos
     pygame.display.update()
     time += 30
     fpsClock.tick(30)
