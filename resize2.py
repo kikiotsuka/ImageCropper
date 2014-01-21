@@ -10,10 +10,11 @@ import os
 import getpass
 from pygame.locals import *
 from PIL import Image
-#import glob
-#import pyreadline.rlmain
-#import readline
-
+"""
+import glob
+import pyreadline.rlmain
+import readline
+"""
 """
 If you want to use this program for your own purposes, read here
 
@@ -175,6 +176,17 @@ pygame.display.set_caption('Resize and crop Image Program, By Mitsuru Otsuka')
 # backup image elsewhere in case of accidental failure
 
 if os.path.isfile(imgname):
+    if imgname[len(imgname) - 4:] == '.png':
+        try:
+            im = Image.open(imgname)
+            bg = Image.new("RGB", im.size, (255,255,255))
+            bg.paste(im,im)
+            bg.save(str(imgname[:len(imgname) - 4]) + '.jpg')
+            os.remove(imgname)
+            imgname = str(imgname[:len(imgname) - 4]) + '.jpg'
+        except:
+            os.rename(imgname, str(imgname[len(imgname) - 4:]) + '.jpg')
+            imgname = str(imgname[len(imgname) - 4:]) + '.jpg'
     Image.open(imgname).save('tmpcopy.jpg')
 elif os.path.isfile(str(imgname) + '.jpg'):
     imgname += '.jpg'
@@ -183,7 +195,17 @@ elif os.path.isfile(str(imgname) + '.jpeg'):
     imgname += '.jpeg'
     Image.open(imgname).save('tmpcopy.jpg')
 elif os.path.isfile(str(imgname) + '.png'):
-    imgname += '.png'
+    try:
+        im = Image.open(str(imgname) + '.png')
+        bg = Image.new("RGB", im.size, (255,255,255))
+        bg.paste(im,im)
+        bg.save(str(imgname) + '.jpg')
+        os.remove(imgname)
+        imgname += '.jpg'
+    except:
+        pass
+    os.rename(str(imgname) + '.png', str(imgname) + '.jpg')
+    #imgname += '.png'
     Image.open(imgname).save('tmpcopy.jpg')
 else:
     print('File not found in')
@@ -486,16 +508,17 @@ while isworking:
             tmpy = int(tmpx / aspectratio)
             tmpim.resize((tmpx, tmpy), Image.BILINEAR).save('scaleoutput.jpg')
             moveimg = pygame.image.load('scaleoutput.jpg')
-    rightpos = (userscreenwidth * scalesize) - moveimg.get_size()[0]
-    midxpos = (userscreenwidth * scalesize) / 2 - moveimg.get_size()[0] / 2
-    bottompos = (userscreenheight * scalesize) - moveimg.get_size()[1]
-    midypos = (userscreenheight * scalesize) / 2 - moveimg.get_size()[1] / 2
-    if k1 or k4 or k7: xloc = leftpos
-    if k2 or k5 or k8: xloc = midxpos
-    if k3 or k6 or k9: xloc = rightpos
-    if k1 or k2 or k3: yloc = bottompos
-    if k4 or k5 or k6: yloc = midypos
-    if k7 or k8 or k9: yloc = toppos
+    if not resizemode:
+        rightpos = (userscreenwidth * scalesize) - moveimg.get_size()[0]
+        midxpos = (userscreenwidth * scalesize) / 2 - moveimg.get_size()[0] / 2
+        bottompos = (userscreenheight * scalesize) - moveimg.get_size()[1]
+        midypos = (userscreenheight * scalesize) / 2 - moveimg.get_size()[1] / 2
+        if k1 or k4 or k7: xloc = leftpos
+        if k2 or k5 or k8: xloc = midxpos
+        if k3 or k6 or k9: xloc = rightpos
+        if k1 or k2 or k3: yloc = bottompos
+        if k4 or k5 or k6: yloc = midypos
+        if k7 or k8 or k9: yloc = toppos
     pygame.display.update()
     time += 30
     fpsClock.tick(30)
