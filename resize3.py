@@ -192,10 +192,6 @@ getcandidates()
 #resizemode = raw_input('Resize mode (y/n): ') == 'y'
 
 # os.chdir('C:/Users/Mitsuru/Desktop/testpapers/')
-msg = 'Press ENTER again to confirm, ESCAPE to cancel'
-fillmsg = 'Mouse over pixel to color background with, hit f again to cancel'
-movemsg1 = 'Use arrow keys or WASD to move the cropping region around, ENTER to confirm'
-movemsg2 = 'Use arrow keys or WASD to move the image around, ENTER to confirm'
 while len(todo) > 0:
     pygame.init()
     fpsClock = pygame.time.Clock()
@@ -258,8 +254,8 @@ while len(todo) > 0:
     else:
         print('File not found in')
         print(str(f))
-        cleanup()
-        stop()
+        print('\n')
+        continue
     if not os.path.isdir('wallpaperbackup'):
         os.makedirs('wallpaperbackup')
     Image.open(imgname).save('wallpaperbackup/1.jpg')
@@ -280,10 +276,10 @@ while len(todo) > 0:
         print(
             'Computing scaled image size. If image is large, operation may take a while')
         while im2.size[0] * scalesize >= userscreenwidth - 30:  # width too big
-            scalesize -= 0.5
+            scalesize -= 0.1
             #scalesize = (userscreenwidth * scalesize) / (im2.size[0] * scalesize) * scalesize
         while im2.size[1] * scalesize >= userscreenheight - 30:  # height too big
-            scalesize -= 0.5
+            scalesize -= 0.1
             #scalesize = (userscreenheight * scalesize) / (im2.size[1] * scalesize) * scalesize
         im2 = im2.resize((int(im2.size[0] * scalesize), int(im2.size[1] * scalesize)), Image.ANTIALIAS)
         im2.save('scaleoutput.jpg')
@@ -316,23 +312,23 @@ while len(todo) > 0:
     isworking = True
 
     print('Initializing window')
+    print('Preparing variables 1')
     # keylistener variables
     up = False
     down = False
     left = False
     right = False
     ask = False  # check user confirmation
-    fontObj = pygame.font.Font('freesansbold.ttf', 14)
     time = 0  # for picture acceleration
     movedist = 1
     currentcolor = pygame.Color(0, 0, 0)
     fillcolor = pygame.Color(255, 255, 255)
     fillmode = False
-    showmessage = False
     resizeval = 0
     resizevalincrement = 1
-    reallydelete = False
-    indeeddelete = False
+    reallydelete=indeeddelete=False
+    print('Variable 1 setup complete')
+    print('Preparing variables 2')
     if resizemode:  # if picture is black, change item to white so box is viewable
         white = False
     else:  # minimalistic picture view mode
@@ -350,6 +346,8 @@ while len(todo) > 0:
         midxpos = (userscreenwidth * scalesize) / 2 - moveimg.get_size()[0] / 2
         bottompos = (userscreenheight * scalesize) - moveimg.get_size()[1]
         midypos = (userscreenheight * scalesize) / 2 - moveimg.get_size()[1] / 2
+    print('Variables setup')
+    print('Starting image manipulation')
     while isworking:
         windowSurfaceObj.fill(fillcolor)
         if resizemode:
@@ -410,29 +408,8 @@ while len(todo) > 0:
                 rectangle.bottom = windowSurfaceObj.get_size()[1]
             if rectangle.right > windowSurfaceObj.get_size()[0]:
                 rectangle.right = windowSurfaceObj.get_size()[0]
-        if ask and showmessage:  # ask image confirmation question
-            msgSurfaceObj = fontObj.render(msg, False, pygame.Color(255, 0, 0))
-            msgRectobj = msgSurfaceObj.get_rect()
-            msgRectobj.topleft = (5, 5)
-            pygame.draw.rect(windowSurfaceObj, currentcolor,(msgRectobj.left - 2, msgRectobj.top - 2, msgRectobj.width + 2, msgRectobj.height + 2), 0)
-            windowSurfaceObj.blit(msgSurfaceObj, msgRectobj)
-        elif fillmode:
+        if fillmode:
             fillcolor = windowSurfaceObj.get_at((mousex, mousey))
-            if showmessage:
-                msgSurfaceObj = fontObj.render(fillmsg, False, pygame.Color(255, 0, 0))
-                msgRectobj = msgSurfaceObj.get_rect()
-                msgRectobj.topleft = (5, 5)
-                pygame.draw.rect(windowSurfaceObj, currentcolor,(msgRectobj.left - 2, msgRectobj.top - 2, msgRectobj.width + 2, msgRectobj.height + 2), 0)
-                windowSurfaceObj.blit(msgSurfaceObj, msgRectobj)
-        elif showmessage:
-            if resizemode:
-                msgSurfaceObj = fontObj.render(movemsg1, False, pygame.Color(255, 0, 0))
-            else:
-                msgSurfaceObj = fontObj.render(movemsg2, False, pygame.Color(255, 0, 0))
-            msgRectobj = msgSurfaceObj.get_rect()
-            msgRectobj.topleft = (5, 5)
-            pygame.draw.rect(windowSurfaceObj, currentcolor,(msgRectobj.left - 2, msgRectobj.top - 2, msgRectobj.width + 2, msgRectobj.height + 2), 0)
-            windowSurfaceObj.blit(msgSurfaceObj, msgRectobj)
         for event in pygame.event.get():
             if event.type == QUIT:
                 del im
@@ -476,8 +453,6 @@ while len(todo) > 0:
                     tmpim.resize((tmpx, tmpy), Image.BILINEAR).save('scaleoutput.jpg')
                     moveimg = pygame.image.load('scaleoutput.jpg')
                     del tmpim, tmpx, tmpy
-                elif event.key == K_m:
-                    showmessage = not showmessage
                 elif event.key == K_SPACE:
                     if white:
                         currentcolor = pygame.Color(0, 0, 0)
@@ -586,12 +561,12 @@ while len(todo) > 0:
         if indeeddelete:
             break
         if reallydelete:
-            deleteObj = pygame.font.Font('freesansbold.ttf', 30)
-            msgSurfaceObj = deleteObj.render('DO YOU REALLY WANT TO DELETE', False, pygame.Color(255, 0, 0))
-            msgRectobj = msgSurfaceObj.get_rect()
-            msgRectobj.topleft = ((userscreenwidth * scalesize) / 2 - msgRectobj.width / 2, (userscreenheight * scalesize) / 2 - msgRectobj.height / 2)
-            pygame.draw.rect(windowSurfaceObj, currentcolor,(msgRectobj.left - 2, msgRectobj.top - 2, msgRectobj.width + 2, msgRectobj.height + 2), 0)
-            windowSurfaceObj.blit(msgSurfaceObj, msgRectobj)
+            box = Rect(0, 0, 50, 50)
+            box.center = ((userscreenwidth * scalesize) / 2, (userscreenheight * scalesize) / 2)
+            box2 = Rect(0, 0, 25, 25)
+            box2.center = box.center
+            pygame.draw.rect(windowSurfaceObj, currentcolor, box, 0)
+            pygame.draw.rect(windowSurfaceObj, pygame.Color(255, 0, 0), box2, 0)
         pygame.display.update()
         time += 30
         fpsClock.tick(30)
