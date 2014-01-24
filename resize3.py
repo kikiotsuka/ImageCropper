@@ -228,8 +228,8 @@ while len(todo) > 0:
                 imgname = str(imgname[:len(imgname) - 4]) + '.jpg'
                 del bg, imtmp
             except:
-                os.rename(imgname, str(imgname[len(imgname) - 4:]) + '.jpg')
-                imgname = str(imgname[len(imgname) - 4:]) + '.jpg'
+                os.rename(imgname, str(imgname[:len(imgname) - 4]) + '.jpg')
+                imgname = str(imgname[:len(imgname) - 4]) + '.jpg'
         Image.open(imgname).save('tmpcopy.jpg')
     elif os.path.isfile(str(imgname) + '.jpg'):
         imgname += '.jpg'
@@ -266,11 +266,9 @@ while len(todo) > 0:
         # Image.ANTIALIAS makes the image look better after resizing
         vertical = True
         if userscreenwidth * 1.0 / im.size[0] * im.size[1] >= userscreenheight * 1.0:
-            im2 = im.resize(
-                (userscreenwidth, int(userscreenwidth * 1.0 / im.size[0] * im.size[1])), Image.ANTIALIAS)
+            im2 = im.resize((userscreenwidth, int(userscreenwidth * 1.0 / im.size[0] * im.size[1])), Image.ANTIALIAS)
         else:
-            im2 = im.resize(
-                (int(userscreenheight * 1.0 / im.size[1] * im.size[0]), userscreenheight), Image.ANTIALIAS)
+            im2 = im.resize((int(userscreenheight * 1.0 / im.size[1] * im.size[0]), userscreenheight), Image.ANTIALIAS)
             vertical = False
         im2.save('tmpresize.jpg')
         print(
@@ -484,6 +482,24 @@ while len(todo) > 0:
                     elif event.key == K_KP7: k7 = True
                     elif event.key == K_KP8: k8 = True
                     elif event.key == K_KP9: k9 = True
+                elif event.key == K_KP0:
+                    yloc = 0
+                    tmpim = Image.open('tmpcopy.jpg')
+                    tmpx = int((tmpim.size[0] * scalesize + resizeval * scalesize))
+                    tmpy = int(tmpx / aspectratio)
+                    if tmpy > scalesize * userscreenheight:
+                        while tmpy >= scalesize * userscreenheight:
+                            resizeval += -1
+                            tmpx = int((tmpim.size[0] * scalesize + resizeval * scalesize))
+                            tmpy = int(tmpx / aspectratio)
+                    else:
+                        while tmpy <= scalesize * userscreenheight:
+                            resizeval += 1
+                            tmpx = int((tmpim.size[0] * scalesize + resizeval * scalesize))
+                            tmpy = int(tmpx / aspectratio)
+                    tmpim.resize((tmpx, tmpy), Image.BILINEAR).save('scaleoutput.jpg')
+                    moveimg = pygame.image.load('scaleoutput.jpg')
+                    del tmpim, tmpx, tmpy
                 elif event.key == K_ESCAPE:
                     ask = False
                     reallydelete = False
