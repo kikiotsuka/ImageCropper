@@ -195,6 +195,12 @@ getcandidates()
 # os.chdir('C:/Users/Mitsuru/Desktop/testpapers/')
 resizemode = None
 changed = False
+storecounter = 0
+
+#remove items in backupfolder
+for temppicture in glob.glob('wallpaperbackup/*'):
+    os.unlink(temppicture)
+
 while len(todo) > 0:
     pygame.init()
     fpsClock = pygame.time.Clock()
@@ -220,11 +226,16 @@ while len(todo) > 0:
         continue
 
     print(str(imgname) + ': ' + str(tmp.size[0]) + ' x ' + str(tmp.size[1]))
-    del tmp
     if resizemode == None or not changed:
-        resizemode = raw_input('Resize mode (y/n): ') == 'y'
+        storecounter += 1
+        if tmp.size[0] < 800 or tmp.size[1] < 800:
+            resizemode = False
+        else:
+            resizemode = True
+        #resizemode = raw_input('Resize mode (y/n): ') == 'y'
     else:
         changed = False
+    del tmp
     if os.path.isfile(imgname):
         if imgname[len(imgname) - 4:] == '.png':
             try:
@@ -266,7 +277,7 @@ while len(todo) > 0:
         continue
     if not os.path.isdir('wallpaperbackup'):
         os.makedirs('wallpaperbackup')
-    Image.open(imgname).save('wallpaperbackup/1.jpg', 'JPEG', quality=90)
+    Image.open(imgname).save('wallpaperbackup/' + str(storecounter) + '.jpg', 'JPEG', quality=90)
     im = Image.open('tmpcopy.jpg')
     # resize image for crop mode
     if resizemode:
