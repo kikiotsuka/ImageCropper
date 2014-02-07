@@ -10,7 +10,7 @@ import os
 import getpass
 from pygame.locals import *
 from PIL import Image
-#import glob
+import glob
 #import pyreadline.rlmain
 #import readline
 
