@@ -10,9 +10,9 @@ import os
 import getpass
 from pygame.locals import *
 from PIL import Image
-import glob
-import pyreadline.rlmain
-import readline
+#import glob
+#import pyreadline.rlmain
+#import readline
 
 """
 If you want to use this program for your own purposes, read here
@@ -75,9 +75,10 @@ Using the program
         Please do not confuse this with a bug or lag, this is a feature if the user
         needs to read error messages on the console
 """
+"""
 def complete(text, state):
     return (glob.glob(text+'*')+[None])[state]
-
+"""
 
 def cleanup():
     # deletes temporary images
@@ -125,12 +126,12 @@ def getcandidates():
     except:
         pass
     del img
-
+"""
 #initialize autocomplete
 readline.set_completer_delims(' \t\n;')
 readline.parse_and_bind("tab: complete")
 readline.set_completer(complete)
-
+"""
 #===variable constants===
 # scale size for cropping
 scalesize = .75
