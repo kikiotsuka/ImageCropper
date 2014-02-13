@@ -229,7 +229,7 @@ while len(todo) > 0:
     print(str(imgname) + ': ' + str(tmp.size[0]) + ' x ' + str(tmp.size[1]))
     if resizemode == None or not changed:
         storecounter += 1
-        if tmp.size[0] < 800 or tmp.size[1] < 800:
+        if tmp.size[0] < 800 or tmp.size[1] < 800 or tmp.size[0] * 1.0 / tmp.size[1] < .8:
             resizemode = False
         else:
             resizemode = True
@@ -246,10 +246,12 @@ while len(todo) > 0:
                 bg.save(str(imgname[:len(imgname) - 4]) + '.jpg', 'JPEG', quality=90)
                 os.remove(imgname)
                 imgname = str(imgname[:len(imgname) - 4]) + '.jpg'
+                todo[0] = imgname
                 del bg, imtmp
             except:
                 os.rename(imgname, str(imgname[:len(imgname) - 4]) + '.jpg')
                 imgname = str(imgname[:len(imgname) - 4]) + '.jpg'
+                todo[0] = imgname
         Image.open(imgname).save('tmpcopy.jpg', 'JPEG', quality=90)
     elif os.path.isfile(str(imgname) + '.jpg'):
         imgname += '.jpg'
@@ -294,10 +296,10 @@ while len(todo) > 0:
         print(
             'Computing scaled image size. If image is large, operation may take a while')
         while im2.size[0] * scalesize >= userscreenwidth - 30:  # width too big
-            scalesize -= 0.1
+            scalesize -= 0.05
             #scalesize = (userscreenwidth * scalesize) / (im2.size[0] * scalesize) * scalesize
         while im2.size[1] * scalesize >= userscreenheight - 30:  # height too big
-            scalesize -= 0.1
+            scalesize -= 0.05
             #scalesize = (userscreenheight * scalesize) / (im2.size[1] * scalesize) * scalesize
         im2 = im2.resize((int(im2.size[0] * scalesize), int(im2.size[1] * scalesize)), scalealgorithm)
         im2.save('scaleoutput.jpg', 'JPEG', quality=90)
