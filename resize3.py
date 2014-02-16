@@ -229,8 +229,7 @@ while len(todo) > 0:
     print(str(imgname) + ': ' + str(tmp.size[0]) + ' x ' + str(tmp.size[1]))
     if resizemode == None or not changed:
         storecounter += 1
-        #if tmp.size[0] < 800 or tmp.size[1] < 800 or tmp.size[0] * 1.0 / tmp.size[1] < .8:
-        if tmp.size[0] <= 800 or tmp.size[1] <= 800:
+        if tmp.size[0] < 800 or tmp.size[1] < 800 or tmp.size[0] * 1.0 / tmp.size[1] < 1:
             resizemode = False
         else:
             resizemode = True
