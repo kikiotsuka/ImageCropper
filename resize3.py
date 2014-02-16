@@ -229,7 +229,8 @@ while len(todo) > 0:
     print(str(imgname) + ': ' + str(tmp.size[0]) + ' x ' + str(tmp.size[1]))
     if resizemode == None or not changed:
         storecounter += 1
-        if tmp.size[0] < 800 or tmp.size[1] < 800 or tmp.size[0] * 1.0 / tmp.size[1] < .8:
+        #if tmp.size[0] < 800 or tmp.size[1] < 800 or tmp.size[0] * 1.0 / tmp.size[1] < .8:
+        if tmp.size[0] <= 800 or tmp.size[1] <= 800:
             resizemode = False
         else:
             resizemode = True
@@ -492,7 +493,7 @@ while len(todo) > 0:
                         isworking = False
                     else:
                         ask = True
-                elif event.key in (K_1, K_KP5):
+                elif event.key == K_1:
                     if vertical:
                         rectangle = Rect((0, int((windowSurfaceObj.get_size()[1] - userscreenheight * scalesize) / 2)),
                             (int(userscreenwidth * scalesize), int(userscreenheight * scalesize)))
@@ -617,6 +618,7 @@ while len(todo) > 0:
         if reallychangemode:
             resizemode = not resizemode
             changed = True
+            scalesize = 0.75
             break
         pygame.display.update()
         time += 30
