@@ -55,26 +55,8 @@ Using the program
             F to fill background with color at current mouse pixel
             Press and/or hold '+' or '-' to resize the image
                 WARNING: Bigger image = more computation = heavy lag
-
-    Inputs:
-        The first time you start this program, it will ask where you wallpapers
-        are. Select the folder containing them, and hit ok.
-
-        First you will be asked to give the name of the image to crop
-        As long as the wallpaper extensions are {'.jpg', '.jpeg', '.png'}
-        you do not need to include the extension. However, if there are multiple
-        files with the same name but different extension, you must include the
-        extension to select the correct image, otherwise it will attempt to find
-        the image with the extensions listed above in that order
-
-        Next, you will be asked to use resize mode
-            Type in 'y' for resize mode, and anything else for minimalistic mode
-
-    Note:
-        After finishing cropping/exiting the program, there will be a 4 second pause
-        Please do not confuse this with a bug or lag, this is a feature if the user
-        needs to read error messages on the console
 """
+
 """
 def complete(text, state):
     return (glob.glob(text+'*')+[None])[state]
@@ -113,18 +95,21 @@ def getuserinfo():
 #gets all images lower than user's screen res
 def getcandidates():
     onlyfiles = [ f2 for f2 in os.listdir(f) if os.path.isfile(os.path.join(f,f2)) ]
-    try:
-        for f2 in onlyfiles:
-            #print(f2)
-            if f2 in ('scaleoutput.jpg', 'tmpcopy.jpg', 'tmpresize.jpg'):
+    counter = 0
+    while counter < len(onlyfiles):
+        try:
+            if onlyfiles[counter] in ('scaleoutput.jpg', 'tmpcopy.jpg', 'tmpresize.jpg'):
                 continue
-            if os.path.isfile(f2):
-                img = Image.open(f2)
+            if os.path.isfile(onlyfiles[counter]):
+                img = Image.open(onlyfiles[counter])
                 if img.size[0] != userscreenwidth or img.size[1] != userscreenheight:
                     #print(str(f2) + ':' + str(img.size[0]) + ' x ' + str(img.size[1]))
-                    todo.append(f2)
-    except:
-        pass
+                    todo.append(onlyfiles[counter])
+            counter += 1
+        except:
+            counter += 1
+            print('Error on: ' + str(onlyfiles[counter]))
+            raw_input()
     del img
 """
 #initialize autocomplete
@@ -183,15 +168,8 @@ print('    Press and/or hold "+" or "-" to resize the image\n')
 print('For detailed instructions on using this program, go to')
 print('C:\\Users\\' + str(getpass.getuser()) + '\\imageresizeruserinfo.txt\\\n')
 
-#Edits
-#print('\n')
 todo = []
 getcandidates()
-#print('\n')
-#Edits
-
-#imgname = raw_input('Image name:')
-#resizemode = raw_input('Resize mode (y/n): ') == 'y'
 
 # os.chdir('C:/Users/Mitsuru/Desktop/testpapers/')
 resizemode = None
@@ -213,15 +191,12 @@ while len(todo) > 0:
 
     imgname = todo[0]
     tmp = Image.open(imgname)
-    scalealgorithm = Image.ANTIALIAS
-    if tmp.size[0] < userscreenwidth and tmp.size[1] < userscreenheight:
-        scalealgorithm = Image.BICUBIC
 
     if tmp.size in ((1024, 576), (1280, 720), (1366, 768), (1600, 900), (2048, 1152), (2560, 1440), (2880, 1620), (3840, 2160), (4096, 2304)):
         if userscreenwidth * 1.0 / tmp.size[0] * tmp.size[1] >= userscreenheight * 1.0:
-            im2 = tmp.resize((userscreenwidth, int(userscreenwidth * 1.0 / tmp.size[0] * tmp.size[1])), scalealgorithm)
+            im2 = tmp.resize((userscreenwidth, int(userscreenwidth * 1.0 / tmp.size[0] * tmp.size[1])), Image.ANTIALIAS)
         else:
-            im2 = tmp.resize((int(userscreenheight * 1.0 / tmp.size[1] * tmp.size[0]), userscreenheight), scalealgorithm)
+            im2 = tmp.resize((int(userscreenheight * 1.0 / tmp.size[1] * tmp.size[0]), userscreenheight), Image.ANTIALIAS)
         im2.save(imgname, 'JPEG', quality=90)
         del im2, tmp
         continue
@@ -233,7 +208,6 @@ while len(todo) > 0:
             resizemode = False
         else:
             resizemode = True
-        #resizemode = raw_input('Resize mode (y/n): ') == 'y'
     else:
         changed = False
     del tmp
@@ -280,17 +254,17 @@ while len(todo) > 0:
         continue
     if not os.path.isdir('wallpaperbackup'):
         os.makedirs('wallpaperbackup')
-    Image.open(imgname).save('wallpaperbackup/' + str(storecounter) + '.jpg', 'JPEG', quality=90)
+    Image.open(imgname).save('wallpaperbackup/' + str(imgname) + '.jpg', 'JPEG', quality=90)
     im = Image.open('tmpcopy.jpg')
     # resize image for crop mode
     if resizemode:
         # size constant is (width, height) tuple
-        # scalealgorithm makes the image look better after resizing
+        # Image.ANTIALIAS makes the image look better after resizing
         vertical = True
         if userscreenwidth * 1.0 / im.size[0] * im.size[1] >= userscreenheight * 1.0:
-            im2 = im.resize((userscreenwidth, int(userscreenwidth * 1.0 / im.size[0] * im.size[1])), scalealgorithm)
+            im2 = im.resize((userscreenwidth, int(userscreenwidth * 1.0 / im.size[0] * im.size[1])), Image.ANTIALIAS)
         else:
-            im2 = im.resize((int(userscreenheight * 1.0 / im.size[1] * im.size[0]), userscreenheight), scalealgorithm)
+            im2 = im.resize((int(userscreenheight * 1.0 / im.size[1] * im.size[0]), userscreenheight), Image.ANTIALIAS)
             vertical = False
         im2.save('tmpresize.jpg', 'JPEG', quality=90)
         print(
@@ -301,7 +275,7 @@ while len(todo) > 0:
         while im2.size[1] * scalesize >= userscreenheight - 30:  # height too big
             scalesize -= 0.05
             #scalesize = (userscreenheight * scalesize) / (im2.size[1] * scalesize) * scalesize
-        im2 = im2.resize((int(im2.size[0] * scalesize), int(im2.size[1] * scalesize)), scalealgorithm)
+        im2 = im2.resize((int(im2.size[0] * scalesize), int(im2.size[1] * scalesize)), Image.ANTIALIAS)
         im2.save('scaleoutput.jpg', 'JPEG', quality=90)
 
         os.environ['SDL_VIDEO_WINDOW_POS'] = "%d,%d" % (
@@ -324,7 +298,7 @@ while len(todo) > 0:
         windowSurfaceObj = pygame.display.set_mode(
             (int(userscreenwidth * scalesize), int(userscreenheight * scalesize)))
         #moveimg = pygame.image.load('tmpcopy.jpg')
-        im.resize((int(im.size[0] * scalesize), int(im.size[1] * scalesize)), scalealgorithm).save('scaleoutput.jpg', 'JPEG', quality=90)
+        im.resize((int(im.size[0] * scalesize), int(im.size[1] * scalesize)), Image.ANTIALIAS).save('scaleoutput.jpg', 'JPEG', quality=90)
         moveimg = pygame.image.load('scaleoutput.jpg')
         moveimgdimension = moveimg.get_size()
         aspectratio = 1.0 * moveimgdimension[0] / moveimgdimension[1]
@@ -476,7 +450,7 @@ while len(todo) > 0:
                     tmpim = Image.open('tmpcopy.jpg')
                     tmpx = int((tmpim.size[0] + resizeval) * scalesize)
                     tmpy = int(tmpx / aspectratio)
-                    tmpim.resize((tmpx, tmpy), scalealgorithm).save('scaleoutput.jpg', 'JPEG', quality=90)
+                    tmpim.resize((tmpx, tmpy), Image.ANTIALIAS).save('scaleoutput.jpg', 'JPEG', quality=90)
                     moveimg = pygame.image.load('scaleoutput.jpg')
                     del tmpim, tmpx, tmpy
                 elif event.key == K_SPACE:
@@ -486,6 +460,11 @@ while len(todo) > 0:
                         else:
                             currentcolor = pygame.Color(255, 255, 255)
                         white = not white
+                    if not resizemode:
+                        if set(fillcolor) == {255}:
+                            fillcolor = pygame.Color(0, 0, 0)
+                        else:
+                            fillcolor = pygame.Color(255, 255, 255)
                 elif event.key == K_RETURN:
                     if ask:
                         ask = False
@@ -511,12 +490,14 @@ while len(todo) > 0:
                     elif event.key == K_KP7: k7 = True
                     elif event.key == K_KP8: k8 = True
                     elif event.key == K_KP9: k9 = True
-                elif event.key == K_KP0:
+                elif event.key == K_KP0 and not resizemode:
                     yloc = 0
                     tmpim = Image.open('tmpcopy.jpg')
                     tmpx = int((tmpim.size[0] * scalesize + resizeval * scalesize))
                     tmpy = int(tmpx / aspectratio)
-                    if tmpy > scalesize * userscreenheight:
+                    if tmpy == scalesize * userscreenheight:
+                        continue
+                    elif tmpy > scalesize * userscreenheight:
                         while tmpy >= scalesize * userscreenheight:
                             resizeval += -1
                             tmpx = int((tmpim.size[0] * scalesize + resizeval * scalesize))
@@ -526,7 +507,27 @@ while len(todo) > 0:
                             resizeval += 1
                             tmpx = int((tmpim.size[0] * scalesize + resizeval * scalesize))
                             tmpy = int(tmpx / aspectratio)
-                    tmpim.resize((tmpx, tmpy), scalealgorithm).save('scaleoutput.jpg', 'JPEG', quality=90)
+                    tmpim.resize((tmpx, tmpy), Image.ANTIALIAS).save('scaleoutput.jpg', 'JPEG', quality=90)
+                    moveimg = pygame.image.load('scaleoutput.jpg')
+                    del tmpim, tmpx, tmpy
+                elif event.key == K_KP_PERIOD and not resizemode:
+                    xloc = 0
+                    tmpim = Image.open('tmpcopy.jpg')
+                    tmpx = int((tmpim.size[0] * scalesize + resizeval * scalesize))
+                    tmpy = int(tmpx / aspectratio)
+                    if tmpx == scalesize * userscreenwidth:
+                        continue
+                    elif tmpx > scalesize * userscreenwidth:
+                        while tmpx >= scalesize * userscreenwidth:
+                            resizeval += -1
+                            tmpx = int((tmpim.size[0] * scalesize + resizeval * scalesize))
+                            tmpy = int(tmpx / aspectratio)
+                    else:
+                        while tmpx <= scalesize * userscreenwidth:
+                            resizeval += 1
+                            tmpx = int((tmpim.size[0] * scalesize + resizeval * scalesize))
+                            tmpy = int(tmpx / aspectratio)
+                    tmpim.resize((tmpx, tmpy), Image.ANTIALIAS).save('scaleoutput.jpg', 'JPEG', quality=90)
                     moveimg = pygame.image.load('scaleoutput.jpg')
                     del tmpim, tmpx, tmpy
                 elif event.key == K_ESCAPE:
@@ -540,6 +541,7 @@ while len(todo) > 0:
                         indeeddelete = True
                     else:
                         reallydelete = True
+                        todo.pop(0)
             elif event.type == KEYUP:
                 if event.key in (K_LEFT, K_a):
                     left = False
@@ -591,7 +593,7 @@ while len(todo) > 0:
                 tmpim = Image.open('tmpcopy.jpg')
                 tmpx = int((tmpim.size[0] * scalesize + resizeval * scalesize))
                 tmpy = int(tmpx / aspectratio)
-                tmpim.resize((tmpx, tmpy), scalealgorithm).save('scaleoutput.jpg', 'JPEG', quality=90)
+                tmpim.resize((tmpx, tmpy), Image.ANTIALIAS).save('scaleoutput.jpg', 'JPEG', quality=90)
                 moveimg = pygame.image.load('scaleoutput.jpg')
                 del tmpim, tmpx, tmpy
         if not resizemode:
@@ -647,7 +649,7 @@ while len(todo) > 0:
     if resizemode:
         im = im2.crop((rectangle.left, rectangle.top, rectangle.right, rectangle.bottom))
         #im = im2.crop((rectangle.x, rectangle.y, rectangle.x + rectangle.width, rectangle.y + rectangle.height))
-        im.resize((int(1.0 * im.size[0] / scalesize), int(1.0 * im.size[1] / scalesize)),scalealgorithm).save(imgname, 'JPEG', quality=90)
+        im.resize((int(1.0 * im.size[0] / scalesize), int(1.0 * im.size[1] / scalesize)),Image.ANTIALIAS).save(imgname, 'JPEG', quality=90)
         del im2
     else:
         im = Image.open('tmpcopy.jpg')
@@ -658,8 +660,8 @@ while len(todo) > 0:
             if resizeval < 0:
                 im = im.resize((tmpx, tmpy), Image.ANTIALIAS)
             else:
-                im = im.resize((tmpx, tmpy), Image.BICUBIC)
-        #im.resize((int((im.size[0] + resizeval)), int(im.size[1] + resizeval)), scalealgorithm)
+                im = im.resize((tmpx, tmpy), Image.ANTIALIAS)
+        #im.resize((int((im.size[0] + resizeval)), int(im.size[1] + resizeval)), Image.ANTIALIAS)
         imtmpcreate = Image.new("RGB", (userscreenwidth, userscreenheight), (fillcolor[0], fillcolor[1], fillcolor[2]))
         xloc = int(xloc / scalesize)
         yloc = int(yloc / scalesize)
